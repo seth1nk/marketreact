@@ -1,42 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { useGoogleLogin, googleLogout } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
-import vkidIcon from '../assets/img/nav-icon1.svg'; // Импорт вашего SVG-файла для VKID
-// Инициализация VKID SDK
-const APP_NAME = "MyApp";
-const CLIENT_ID = "53837908";
-const REDIRECT_URI = "http://localhost:3000";
 
 const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLoginSuccess, onRegisterSuccess, onLogout, onRegisterShow }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const [referralCode, setReferralCode] = useState('');
 
-  // Загрузка VKID SDK
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://id.vk.com/js/vkid-sdk/vkid-sdk.min.js";
-    script.async = true;
-    script.onload = () => {
-      window.VKIDSDK.init({ clientId: CLIENT_ID, redirectUri: REDIRECT_URI });
-    };
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
-  // Проверка токена при загрузке
   useEffect(() => {
     const googleToken = localStorage.getItem('google_access_token');
-    const vkToken = localStorage.getItem('vk_access_token');
     const storedUser = JSON.parse(localStorage.getItem('userInfo'));
+    const ref = localStorage.getItem('referral_code');
+    console.log('Referral code from localStorage:', ref);
+    if (ref) {
+      setReferralCode(ref);
+    }
 
-    if (storedUser && (googleToken || vkToken)) {
-      onLoginSuccess(storedUser);
+    if (storedUser && googleToken) {
+      if (!JSON.parse(localStorage.getItem('userInfo'))?.email) {
+        onLoginSuccess(storedUser);
+      }
     } else if (googleToken) {
-      fetch('http://localhost:5000/auth/google', {
+      fetch('https://market.apt142.ru/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ access_token: googleToken }),
@@ -45,10 +32,11 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
           if (!res.ok) throw new Error('Invalid token response');
           return res.json();
         })
-        .then((userInfo) => {
-          if (userInfo.email) {
-            onLoginSuccess(userInfo);
-            localStorage.setItem('userInfo', JSON.stringify(userInfo));
+        .then((data) => {
+          if (data.user.email) {
+            onLoginSuccess(data.user);
+            localStorage.setItem('userInfo', JSON.stringify(data.user));
+            localStorage.setItem('token', data.token);
           } else {
             localStorage.removeItem('google_access_token');
             localStorage.removeItem('userInfo');
@@ -57,27 +45,6 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
         })
         .catch(() => {
           console.error('Ошибка проверки Google токена');
-        });
-    } else if (vkToken) {
-      fetch(`https://api.vk.com/method/users.get?access_token=${vkToken}&v=5.131&fields=first_name,last_name,photo_100`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.response && data.response.length > 0) {
-            const vkUser = data.response[0];
-            const userInfo = {
-              name: `${vkUser.first_name} ${vkUser.last_name}`,
-              picture: vkUser.photo_100,
-            };
-            onLoginSuccess(userInfo);
-            localStorage.setItem('userInfo', JSON.stringify(userInfo));
-          } else {
-            localStorage.removeItem('vk_access_token');
-            localStorage.removeItem('userInfo');
-            onLogout();
-          }
-        })
-        .catch(() => {
-          console.error('Ошибка проверки VKID токена');
         });
     }
   }, [onLoginSuccess, onLogout]);
@@ -89,9 +56,9 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
       return;
     }
     try {
-      const response = await axios.post('http://localhost:5000/login', { email, password });
+      const response = await axios.post('https://market.apt142.ru/login', { email, password });
       localStorage.setItem('token', response.data.token);
-      const userInfo = { email, name: email };
+      const userInfo = response.data.user;
       onLoginSuccess(userInfo);
       localStorage.setItem('userInfo', JSON.stringify(userInfo));
       setError('');
@@ -110,15 +77,21 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
       return;
     }
     try {
-      const response = await axios.post('http://localhost:5000/register', { email, password, name });
+      const response = await axios.post('https://market.apt142.ru/register', {
+        email,
+        password,
+        name,
+        referral_code: referralCode || undefined,
+      });
       localStorage.setItem('token', response.data.token);
-      const userInfo = { email, name };
+      const userInfo = response.data.user;
       onRegisterSuccess(userInfo);
       localStorage.setItem('userInfo', JSON.stringify(userInfo));
       setError('');
       setEmail('');
       setPassword('');
       setName('');
+      setReferralCode('');
       onRegisterClose();
     } catch (error) {
       setError(error.response?.data?.error || 'Ошибка регистрации');
@@ -128,17 +101,18 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await fetch('http://localhost:5000/auth/google', {
+        const res = await fetch('https://market.apt142.ru/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ access_token: tokenResponse.access_token }),
+          body: JSON.stringify({ access_token: tokenResponse.access_token, referral_code: referralCode || undefined }),
         });
         if (!res.ok) throw new Error('Failed to fetch user info');
-        const userInfo = await res.json();
-        if (userInfo.email) {
-          onLoginSuccess(userInfo);
+        const data = await res.json();
+        if (data.user.email) {
+          onLoginSuccess(data.user);
           localStorage.setItem('google_access_token', tokenResponse.access_token);
-          localStorage.setItem('userInfo', JSON.stringify(userInfo));
+          localStorage.setItem('userInfo', JSON.stringify(data.user));
+          localStorage.setItem('token', data.token);
           onLoginClose();
         }
       } catch (error) {
@@ -149,59 +123,8 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
       setError('Ошибка авторизации через Google');
     },
     scope: 'email profile',
-    redirect_uri: 'http://localhost:3000',
+    redirect_uri: 'https://market.apt142.ru',
   });
-
-  const handleVKIDLogin = () => {
-    if (window.VKIDSDK) {
-      const oneTapButton = new window.VKIDSDK.OneTapButton({
-        clientId: CLIENT_ID,
-        redirectUri: REDIRECT_URI,
-        appName: APP_NAME,
-        scheme: window.VKIDSDK.Scheme.LIGHT,
-        lang: window.VKIDSDK.Languages.RUS,
-        showAlternativeLogin: true,
-      });
-      oneTapButton.render()
-        .on(window.VKIDSDK.WidgetEvents.ERROR, () => {
-          setError('Ошибка при авторизации через VKID');
-        })
-        .on(window.VKIDSDK.OneTapInternalEvents.LOGIN_SUCCESS, (payload) => {
-          const { code, device_id } = payload;
-          window.VKIDSDK.Auth.exchangeCode(code, device_id)
-            .then((response) => {
-              const { access_token } = response;
-              localStorage.setItem('vk_access_token', access_token);
-              fetch(`https://api.vk.com/method/users.get?access_token=${access_token}&v=5.131&fields=first_name,last_name,photo_100`)
-                .then((res) => res.json())
-                .then((data) => {
-                  if (data.response && data.response.length > 0) {
-                    const vkUser = data.response[0];
-                    const userInfo = {
-                      name: `${vkUser.first_name} ${vkUser.last_name}`,
-                      picture: vkUser.photo_100,
-                    };
-                    onLoginSuccess(userInfo);
-                    localStorage.setItem('userInfo', JSON.stringify(userInfo));
-                    onLoginClose();
-                  }
-                })
-                .catch(() => {
-                  setError('Ошибка получения данных пользователя');
-                });
-            })
-            .catch(() => {
-              setError('Ошибка обмена кода на токен');
-            });
-        });
-    } else {
-      setError('VKID SDK не загружен');
-    }
-  };
-
-  const handleAppleLogin = () => {
-    setError('Авторизация через Apple пока не поддерживается');
-  };
 
   const handleSwitchToRegister = () => {
     onLoginClose();
@@ -266,21 +189,15 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
                 Зарегистрироваться
               </span>
             </p>
-            <div className="flex-row">
-              <button className="btn google" type="button" onClick={() => googleLogin()}>
-                <svg version="1.1" width="20" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: 'new 0 0 512 512' }} xmlSpace="preserve">
-                  <path style={{ fill: '#FBBB00' }} d="M113.47,309.408L95.648,375.94l-65.139,1.378C11.042,341.211,0,299.9,0,256 c0-42.451,10.324-82.483,28.624-117.732h0.014l57.992,10.632l25.404,57.644c-5.317,15.501-8.215,32.141-8.215,49.456 C103.821,274.792,107.225,292.797,113.47,309.408z"></path>
-                  <path style={{ fill: '#518EF8' }} d="M507.527,208.176C510.467,223.662,512,239.655,512,256c0,18.328-1.927,36.206-5.598,53.451 c-12.462,58.683-45.025,109.925-90.134,146.187l-0.014-0.014l-73.044-3.727l-10.338-64.535 c29.932-17.554,53.324-45.025,65.646-77.911h-136.89V208.176h138.887L507.527,208.176L507.527,208.176z"></path>
-                  <path style={{ fill: '#28B446' }} d="M416.253,455.624l0.014,0.014C372.396,490.901,316.666,512,256,512 c-97.491,0-182.252-54.491-225.491-134.681l82.961-67.91c21.619,57.698,77.278,98.771,142.53,98.771 c28.047,0,54.323-7.582,76.87-20.818L416.253,455.624z"></path>
-                  <path style={{ fill: '#F14336' }} d="M419.404,58.936l-82.933,67.896c-23.335-14.586-50.919-23.012-80.471-23.012 c-66.729,0-123.429,42.957-143.965,102.724l-83.397-68.276h-0.014C71.23,56.123,157.06,0,256,0 C318.115,0,375.068,22.126,419.404,58.936z"></path>
-                </svg>
-                Google
-              </button>
-<button className="btn vkid" type="button" onClick={handleVKIDLogin}>
-  <img src={vkidIcon} alt="VKID" style={{ width: '24px', height: '24px' }} />
-  VKID
-</button>
-            </div>
+            <button className="btn google" type="button" onClick={() => googleLogin()}>
+              <svg version="1.1" width="20" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: 'new 0 0 512 512' }} xmlSpace="preserve">
+                <path style={{ fill: '#FBBB00' }} d="M113.47,309.408L95.648,375.94l-65.139,1.378C11.042,341.211,0,299.9,0,256 c0-42.451,10.324-82.483,28.624-117.732h0.014l57.992,10.632l25.404,57.644c-5.317,15.501-8.215,32.141-8.215,49.456 C103.821,274.792,107.225,292.797,113.47,309.408z"></path>
+                <path style={{ fill: '#518EF8' }} d="M507.527,208.176C510.467,223.662,512,239.655,512,256c0,18.328-1.927,36.206-5.598,53.451 c-12.462,58.683-45.025,109.925-90.134,146.187l-0.014-0.014l-73.044-3.727l-10.338-64.535 c29.932-17.554,53.324-45.025,65.646-77.911h-136.89V208.176h138.887L507.527,208.176L507.527,208.176z"></path>
+                <path style={{ fill: '#28B446' }} d="M416.253,455.624l0.014,0.014C372.396,490.901,316.666,512,256,512 c-97.491,0-182.252-54.491-225.491-134.681l82.961-67.91c21.619,57.698,77.278,98.771,142.53,98.771 c28.047,0,54.323-7.582,76.87-20.818L416.253,455.624z"></path>
+                <path style={{ fill: '#F14336' }} d="M419.404,58.936l-82.933,67.896c-23.335-14.586-50.919-23.012-80.471-23.012 c-66.729,0-123.429,42.957-143.965,102.724l-83.397-68.276h-0.014C71.23,56.123,157.06,0,256,0 C318.115,0,375.068,22.126,419.404,58.936z"></path>
+              </svg>
+              Google
+            </button>
           </form>
         </div>
       )}
@@ -341,8 +258,37 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
                 <path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path>
               </svg>
             </div>
+            {referralCode && (
+              <div className="flex-column">
+                <label>Реферальный код</label>
+                <div className="inputForm">
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Реферальный код"
+                    value={referralCode}
+                    readOnly
+                  />
+                </div>
+              </div>
+            )}
             <button className="button-submit" type="submit">
               Зарегистрироваться
+            </button>
+            <p className="p">
+              Уже есть аккаунт?{' '}
+              <span className="span" onClick={onLoginClose}>
+                Войти
+              </span>
+            </p>
+            <button className="btn google" type="button" onClick={() => googleLogin()}>
+              <svg version="1.1" width="20" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: 'new 0 0 512 512' }} xmlSpace="preserve">
+                <path style={{ fill: '#FBBB00' }} d="M113.47,309.408L95.648,375.94l-65.139,1.378C11.042,341.211,0,299.9,0,256 c0-42.451,10.324-82.483,28.624-117.732h0.014l57.992,10.632l25.404,57.644c-5.317,15.501-8.215,32.141-8.215,49.456 C103.821,274.792,107.225,292.797,113.47,309.408z"></path>
+                <path style={{ fill: '#518EF8' }} d="M507.527,208.176C510.467,223.662,512,239.655,512,256c0,18.328-1.927,36.206-5.598,53.451 c-12.462,58.683-45.025,109.925-90.134,146.187l-0.014-0.014l-73.044-3.727l-10.338-64.535 c29.932-17.554,53.324-45.025,65.646-77.911h-136.89V208.176h138.887L507.527,208.176L507.527,208.176z"></path>
+                <path style={{ fill: '#28B446' }} d="M416.253,455.624l0.014,0.014C372.396,490.901,316.666,512,256,512 c-97.491,0-182.252-54.491-225.491-134.681l82.961-67.91c21.619,57.698,77.278,98.771,142.53,98.771 c28.047,0,54.323-7.582,76.87-20.818L416.253,455.624z"></path>
+                <path style={{ fill: '#F14336' }} d="M419.404,58.936l-82.933,67.896c-23.335-14.586-50.919-23.012-80.471-23.012 c-66.729,0-123.429,42.957-143.965,102.724l-83.397-68.276h-0.014C71.23,56.123,157.06,0,256,0 C318.115,0,375.068,22.126,419.404,58.936z"></path>
+              </svg>
+              Google
             </button>
           </form>
         </div>

@@ -3,12 +3,15 @@ import { ProjectCard } from "./ProjectCard";
 import projImg1 from "../assets/img/project-img1.png"; // Изображение студенческого проекта 1
 import projImg2 from "../assets/img/project-img2.png"; // Изображение студенческого проекта 2
 import projImg3 from "../assets/img/project-img3.png"; // Изображение студенческого проекта 3
+import projImg4 from "../assets/img/project-img1.png"; // Изображение самостоятельного проекта 1
+import projImg5 from "../assets/img/project-img2.png"; // Изображение самостоятельного проекта 2
+import projImg6 from "../assets/img/project-img3.png"; // Изображение самостоятельного проекта 3
 import colorSharp2 from "../assets/img/color-sharp2.png";
 import 'animate.css';
 import TrackVisibility from 'react-on-screen';
 
 export const Projects = () => {
-  const projects = [
+  const courseProjects = [
     {
       title: "Курсовой проект",
       description: "Разработка веб-приложения",
@@ -26,6 +29,24 @@ export const Projects = () => {
     },
   ];
 
+  const soloProjects = [
+    {
+      title: "Личный веб-сайт",
+      description: "Создание портфолио",
+      imgUrl: projImg4,
+    },
+    {
+      title: "Мобильное приложение",
+      description: "Прототип для iOS/Android",
+      imgUrl: projImg5,
+    },
+    {
+      title: "Интерактивная игра",
+      description: "Разработка с использованием JavaScript",
+      imgUrl: projImg6,
+    },
+  ];
+
   return (
     <section className="project" id="projects">
       <Container>
@@ -34,9 +55,9 @@ export const Projects = () => {
             <TrackVisibility>
               {({ isVisible }) => (
                 <div className={isVisible ? "animate__animated animate__fadeIn" : ""}>
-                  <h2>Мои проекты</h2>
+                  <h2>Выполненные проекты</h2>
                   <p>
-                    Здесь представлены мои учебные и личные проекты, выполненные в рамках
+                    Здесь представлены учебные проекты, выполненные в рамках
                     университетских курсов и самостоятельных инициатив. Каждый проект демонстрирует
                     навыки программирования, дизайна и анализа данных.
                   </p>
@@ -50,10 +71,7 @@ export const Projects = () => {
                         <Nav.Link eventKey="first">Курсовые</Nav.Link>
                       </Nav.Item>
                       <Nav.Item>
-                        <Nav.Link eventKey="second">Самостоятельные</Nav.Link>
-                      </Nav.Item>
-                      <Nav.Item>
-                        <Nav.Link eventKey="third">Командные</Nav.Link>
+                        <Nav.Link eventKey="third">Самостоятельные</Nav.Link>
                       </Nav.Item>
                     </Nav>
                     <Tab.Content
@@ -62,22 +80,17 @@ export const Projects = () => {
                     >
                       <Tab.Pane eventKey="first">
                         <Row>
-                          {projects.map((project, index) => (
+                          {courseProjects.map((project, index) => (
                             <ProjectCard key={index} {...project} />
                           ))}
                         </Row>
                       </Tab.Pane>
-                      <Tab.Pane eventKey="second">
-                        <p>
-                          Здесь находятся мои самостоятельные проекты, созданные для углубления
-                          знаний в веб-разработке и дизайне интерфейсов.
-                        </p>
-                      </Tab.Pane>
                       <Tab.Pane eventKey="third">
-                        <p>
-                          Командные проекты, выполненные в рамках хакатонов и учебных коллабораций,
-                          демонстрируют мои навыки работы в группе.
-                        </p>
+                        <Row>
+                          {soloProjects.map((project, index) => (
+                            <ProjectCard key={index} {...project} />
+                          ))}
+                        </Row>
                       </Tab.Pane>
                     </Tab.Content>
                   </Tab.Container>

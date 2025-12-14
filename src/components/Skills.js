@@ -3,8 +3,6 @@ import meter2 from "../assets/img/meter2.svg";
 import meter3 from "../assets/img/meter3.svg";
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-import arrow1 from "../assets/img/arrow1.svg";
-import arrow2 from "../assets/img/arrow2.svg";
 import colorSharp from "../assets/img/color-sharp.png";
 
 export const Skills = () => {
@@ -35,8 +33,8 @@ export const Skills = () => {
             <div className="skill-bx wow zoomIn">
               <h2>Навыки</h2>
               <p>
-                Здесь представлены мои ключевые навыки, которые я развил в процессе обучения в университете и работы над учебными проектами.<br />
-                Эти навыки помогают мне успешно справляться с задачами веб-разработки, дизайна и анализа данных.
+                Здесь представлены ключевые навыки, которые развиты в процессе обучения и работы над учебными проектами.<br />
+                Эти навыки помогают нам успешно справляться с задачами веб-разработки, дизайна и анализа данных.
               </p>
               <Carousel responsive={responsive} infinite={true} className="owl-carousel owl-theme skill-slider">
                 <div className="item">

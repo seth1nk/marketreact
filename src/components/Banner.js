@@ -9,10 +9,10 @@ export const Banner = () => {
   const [loopNum, setLoopNum] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [text, setText] = useState('');
-  const [delta, setDelta] = useState(300 - Math.random() * 100);
+  const [delta, setDelta] = useState(100); // Ускоряем появление текста
   const [index, setIndex] = useState(1);
-  const toRotate = ["Студент-программист", "Веб-разработчик", "Дизайнер интерфейсов"];
-  const period = 2000;
+  const toRotate = ["Тебе нужна помощь?", "У тебя нет времени?", "Ты ничего не умеешь?"];
+  const period = 3000; // Увеличиваем паузу перед удалением
 
   useEffect(() => {
     let ticker = setInterval(() => {
@@ -22,7 +22,7 @@ export const Banner = () => {
     return () => {
       clearInterval(ticker);
     };
-  }, [text]);
+  }, [text, delta]);
 
   const tick = () => {
     let i = loopNum % toRotate.length;
@@ -34,18 +34,18 @@ export const Banner = () => {
     setText(updatedText);
 
     if (isDeleting) {
-      setDelta((prevDelta) => prevDelta / 2);
+      setDelta(200); // Замедляем удаление текста
     }
 
     if (!isDeleting && updatedText === fullText) {
       setIsDeleting(true);
       setIndex((prevIndex) => prevIndex - 1);
-      setDelta(period);
+      setDelta(period); // Пауза перед началом удаления
     } else if (isDeleting && updatedText === '') {
       setIsDeleting(false);
       setLoopNum(loopNum + 1);
       setIndex(1);
-      setDelta(500);
+      setDelta(100); // Ускоряем появление следующего текста
     } else {
       setIndex((prevIndex) => prevIndex + 1);
     }
@@ -59,24 +59,24 @@ export const Banner = () => {
             <TrackVisibility>
               {({ isVisible }) => (
                 <div className={isVisible ? "animate__animated animate__fadeIn" : ""}>
-                  <span className="tagline">Добро пожаловать в мое портфолио</span>
+                  <span className="tagline">Добро пожаловать!</span>
                   <h1>
-                    {`Привет! Я`}{' '}
+                    {`Привет! `}{' '}
                     <span
                       className="txt-rotate"
                       data-period="1000"
-                      data-rotate='["Студент-программист", "Веб-разработчик", "Дизайнер интерфейсов"]'
+                      data-rotate='["Тебе нужна помощь?", "У тебя нет времени?", "Ты ничего не умеешь?"]'
                     >
                       <span className="wrap">{text}</span>
                     </span>
                   </h1>
                   <p>
-                    Я студент, увлеченный веб-разработкой и созданием удобных интерфейсов. Здесь вы
-                    найдете мои учебные проекты, выполненные в рамках курсов и хакатонов, а также
-                    примеры моих навыков программирования и дизайна.
+                    Мы можем помочь тебе, так как увлечены веб-разработкой и созданием удобных интерфейсов. Здесь вы
+                    найдете учебные проекты, выполненные в рамках курсовых проектов, а также
+                    примеры наших навыков программирования и дизайна.
                   </p>
                   <button onClick={() => console.log('connect')}>
-                    Связаться со мной <ArrowRightCircle size={25} />
+                    Связаться с нами <ArrowRightCircle size={25} />
                   </button>
                 </div>
               )}

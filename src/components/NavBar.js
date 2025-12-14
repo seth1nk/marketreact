@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
-import { BrowserRouter as Router } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import logo from '../assets/img/logo.svg';
 import navIcon1 from '../assets/img/nav-icon1.svg';
 import navIcon2 from '../assets/img/nav-icon2.svg';
 import navIcon3 from '../assets/img/nav-icon3.svg';
+import defaultAvatar from '../assets/img/profile.png';
+import chatIcon from '../assets/img/chat.png';
+import SupportChat from './SupportChat';
 
 const NavBar = ({ onLoginShow, onRegisterShow, isAuthenticated, user, onLogout }) => {
   const [activeLink, setActiveLink] = useState('home');
   const [scrolled, setScrolled] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Обработка скролла
   useEffect(() => {
     const onScroll = () => {
       if (window.scrollY > 50) {
@@ -24,7 +29,6 @@ const NavBar = ({ onLoginShow, onRegisterShow, isAuthenticated, user, onLogout }
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Обработка переключения темы
   useEffect(() => {
     document.body.className = theme;
     localStorage.setItem('theme', theme);
@@ -38,20 +42,33 @@ const NavBar = ({ onLoginShow, onRegisterShow, isAuthenticated, user, onLogout }
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
+  const handleUserClick = () => {
+    if (location.pathname === '/') {
+      navigate('/marketplace');
+    } else if (location.pathname === '/marketplace' && user.name === 'seth1nk') {
+      navigate('/admin-orders');
+    }
+  };
+
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
+
   return (
-    <Router>
+    <>
       <Navbar expand="md" className={scrolled ? "scrolled" : ""}>
         <Container>
-<Navbar.Brand href="/">
-  <img src={logo} alt="Logo" style={{ width: '150px', height: 'auto' }} />
-</Navbar.Brand>
+          <Navbar.Brand as={NavLink} to="/">
+            <img src={logo} alt="Logo" style={{ width: '150px', height: 'auto' }} />
+          </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav">
             <span className="navbar-toggler-icon"></span>
           </Navbar.Toggle>
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
               <Nav.Link
-                href="#home"
+                as={NavLink}
+                to="/"
                 className={activeLink === 'home' ? 'active navbar-link' : 'navbar-link'}
                 onClick={() => onUpdateActiveLink('home')}
               >
@@ -74,27 +91,35 @@ const NavBar = ({ onLoginShow, onRegisterShow, isAuthenticated, user, onLogout }
             </Nav>
             <span className="navbar-text">
               <div className="social-icon">
-                <a href="https://vk.com/id824263770"><img src={navIcon1} alt="Social Icon 1" /></a>
-                <a href="https://t.me/raspisanie_aptbot"><img src={navIcon2} alt="Social Icon 2" /></a>
-                <a href="http://www.aptangarsk.ru"><img src={navIcon3} alt="Social Icon 3" /></a>
+                <a href="https://vk.com/id824263770">
+                  <img src={navIcon1} alt="Social Icon 1" />
+                </a>
+                <a href="https://t.me/raspisanie_aptbot">
+                  <img src={navIcon2} alt="Social Icon 2" />
+                </a>
+                <a href="http://www.aptangarsk.ru">
+                  <img src={navIcon3} alt="Social Icon 3" />
+                </a>
               </div>
               {isAuthenticated && user ? (
                 <>
-                  <button className="vvd" disabled style={{ display: 'flex', alignItems: 'center', padding: '8px 20px' }}>
-                    {user.picture && (
-                      <img
-                        src={user.picture}
-                        alt={user.name || user.email ? `${user.name || user.email} avatar` : 'User avatar'}
-                        style={{
-                          width: '48px',
-                          height: '48px',
-                          borderRadius: '50%',
-                          border: '1px solid #fff',
-                          marginRight: '5px',
-                          verticalAlign: 'middle',
-                        }}
-                      />
-                    )}
+                  <button
+                    className="vvd"
+                    style={{ display: 'flex', alignItems: 'center', padding: '8px 20px' }}
+                    onClick={handleUserClick}
+                  >
+                    <img
+                      src={user.picture || defaultAvatar}
+                      alt={user.name || user.email ? `${user.name || user.email} avatar` : 'User avatar'}
+                      style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '50%',
+                        border: '1px solid #fff',
+                        marginRight: '5px',
+                        verticalAlign: 'middle',
+                      }}
+                    />
                     <span style={{ verticalAlign: 'middle' }}>{user.name || user.email}</span>
                   </button>
                   <button className="vvd" onClick={onLogout}>
@@ -215,11 +240,45 @@ const NavBar = ({ onLoginShow, onRegisterShow, isAuthenticated, user, onLogout }
                   </g>
                 </svg>
               </label>
+              <button
+                className="social-icon support-chat-btn"
+                onClick={toggleChat}
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  padding: '8px',
+                  marginLeft: '14px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                  transition: '0.3s ease-in-out',
+                }}
+              >
+                <img
+                  src={chatIcon}
+                  alt="Chat"
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    zIndex: 1,
+                    transition: '0.3s ease-in-out',
+                  }}
+                />
+              </button>
             </span>
           </Navbar.Collapse>
         </Container>
       </Navbar>
-    </Router>
+      <SupportChat
+        isOpen={isChatOpen}
+        onClose={toggleChat}
+        user={user}
+        isAuthenticated={isAuthenticated}
+      />
+    </>
   );
 };
 

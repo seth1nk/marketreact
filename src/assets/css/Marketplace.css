@@ -1,0 +1,1589 @@
+/* From Uiverse.io by zanina-yassine, enhanced for better design */
+
+/* Контейнер для всей страницы маркетплейса */
+.marketplace-container {
+  padding: 100px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+body.light .marketplace-container {
+  background: transparent;
+}
+
+body.dark .marketplace-container {
+  background: transparent;
+}
+
+/* Контейнер для корзины, расположенный по центру справа */
+.master-container {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  width: 400px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  z-index: 998;
+}
+
+/* Стили для карточек корзины, купонов и оформления */
+.cart-card,
+.coupon-card,
+.checkout-card {
+  width: 100%;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+body.light .cart-card,
+body.light .coupon-card,
+body.light .checkout-card {
+  background: #FFFFFF;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+body.dark .cart-card,
+body.dark .coupon-card,
+body.dark .checkout-card {
+  background: #1e1e1e;
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+}
+
+.cart-card:hover,
+.coupon-card:hover,
+.checkout-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+body.dark .cart-card:hover,
+body.dark .coupon-card:hover,
+body.dark .checkout-card:hover {
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+}
+
+.title {
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+body.light .title {
+  color: #63656b;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+body.dark .title {
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Стили для корзины */
+.cart-card {
+  border-radius: 15px 15px 8px 8px;
+  min-height: 0;
+}
+
+.cart-card .products {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.cart-card .products .product {
+  display: grid;
+  grid-template-columns: 60px 1fr 80px 1fr;
+  gap: 10px;
+  padding: 10px 0;
+  align-items: center;
+}
+
+.cart-card .products .product span {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+}
+
+body.light .cart-card .products .product span {
+  color: #47484b;
+}
+
+body.dark .cart-card .products .product span {
+  color: #ffffff;
+}
+
+.cart-card .products .product p {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0;
+}
+
+body.light .cart-card .products .product p {
+  color: #7a7c81;
+}
+
+body.dark .cart-card .products .product p {
+  color: #B8B8B8;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+}
+
+body.light .empty-cart {
+  color: #7a7c81;
+}
+
+body.dark .empty-cart {
+  color: #B8B8B8;
+}
+
+.cart-card .quantity {
+  height: 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  border-radius: 6px;
+}
+
+body.light .cart-card .quantity {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+}
+
+body.dark .cart-card .quantity {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+}
+
+.cart-card .quantity label {
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+}
+
+body.light .cart-card .quantity label {
+  color: #47484b;
+}
+
+body.dark .cart-card .quantity label {
+  color: #ffffff;
+}
+
+.cart-card .quantity button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cart-card .quantity button:hover svg {
+  stroke: #FF8413;
+}
+
+.cart-card .small {
+  font-size: 16px;
+  margin: 0 0 auto auto;
+}
+
+body.light .cart-card .small {
+  color: #2B2B2F;
+}
+
+body.dark .cart-card .small {
+  color: #ffffff;
+}
+
+.cart-card .small sup {
+  font-size: 14px;
+}
+
+/* Стили для купонов */
+.coupon-card {
+  border-radius: 8px;
+}
+
+.coupon-card form {
+  display: grid;
+  grid-template-columns: 150px 100px;
+  gap: 10px;
+  padding: 15px;
+  align-items: center;
+}
+
+.input_field {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 6px;
+  outline: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+body.light .input_field {
+  border: 1px solid #e0e0e0;
+  background: #ffffff;
+  color: #121212;
+}
+
+body.dark .input_field {
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #ffffff;
+}
+
+.input_field:focus {
+  border-color: #4480FF;
+  box-shadow: 0 0 0 3px rgba(68, 128, 255, 0.2);
+}
+
+.coupon-card form button {
+  height: 38px;
+  padding: 0 15px;
+  background: linear-gradient(90deg, #4480FF, #1e3a8a);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.coupon-card form button:hover {
+  background: linear-gradient(90deg, #1e3a8a, #4480FF);
+}
+
+/* Стили для оформления заказа */
+.checkout-card {
+  border-radius: 8px 8px 15px 15px;
+}
+
+.checkout-card .details {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  padding: 15px;
+  gap: 8px;
+}
+
+.checkout-card .details span {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+body.light .checkout-card .details span:nth-child(odd) {
+  color: #707175;
+}
+
+body.dark .checkout-card .details span:nth-child(odd) {
+  color: #B8B8B8;
+}
+
+body.light .checkout-card .details span:nth-child(even) {
+  color: #47484b;
+}
+
+body.dark .checkout-card .details span:nth-child(even) {
+  color: #ffffff;
+}
+
+.checkout-card .checkout--footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+body.light .checkout-card .checkout--footer {
+  background: #f9f9f9;
+}
+
+body.dark .checkout-card .checkout--footer {
+  background: #2a2a2a;
+  border-top: 1px solid #444;
+}
+
+.checkout-card .price {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+body.light .checkout-card .price {
+  color: #2B2B2F;
+}
+
+body.dark .checkout-card .price {
+  color: #ffffff;
+}
+
+.checkout-card .price sup {
+  font-size: 16px;
+}
+
+.checkout-card .price sub {
+  font-size: 12px;
+  bottom: 2px;
+}
+
+body.light .checkout-card .price sub {
+  color: #5F5D6B;
+}
+
+body.dark .checkout-card .price sub {
+  color: #B8B8B8;
+}
+
+.checkout-card .checkout-btn {
+  height: 38px;
+  padding: 0 15px;
+  background: linear-gradient(90deg, #4480FF, #1e3a8a);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.checkout-card .checkout-btn:hover {
+  background: linear-gradient(90deg, #1e3a8a, #4480FF);
+}
+
+/* Стили для контейнера услуг */
+.products-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-top: 120px;
+  z-index: 997;
+}
+
+/* Стили для списка заказов */
+.orders-list-container {
+  position: fixed;
+  bottom: 100px;
+  left: 20px;
+  width: 300px;
+  padding: 15px;
+  border-radius: 15px;
+  z-index: 998;
+}
+
+body.light .orders-list-container {
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+body.dark .orders-list-container {
+  background-color: #1e1e1e;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.order-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.order-item:hover {
+  transform: translateY(-2px);
+}
+
+body.light .order-item {
+  background-color: #f9f9f9;
+}
+
+body.dark .order-item {
+  background-color: #2a2a2a;
+}
+
+.order-completed {
+  border-left: 4px solid #22c55e;
+}
+
+.order-in-progress {
+  border-left: 4px solid #64748b;
+}
+
+.order-canceled {
+  border-left: 4px solid #ef4444;
+}
+
+.order-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+body.light .order-title {
+  color: #121212;
+}
+
+body.dark .order-title {
+  color: #ffffff;
+}
+
+.order-status {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 4px 0;
+}
+
+.order-completed .order-status {
+  color: #22c55e;
+}
+
+.order-in-progress .order-status {
+  color: #64748b;
+}
+
+.order-canceled .order-status {
+  color: #ef4444;
+}
+
+.order-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+body.dark .order-date {
+  color: #B8B8B8;
+}
+
+.empty-orders {
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+}
+
+body.light .empty-orders {
+  color: #7a7c81;
+}
+
+body.dark .empty-orders {
+  color: #B8B8B8;
+}
+
+/* Стили для степпера */
+.stepper-box {
+  position: fixed;
+  bottom: 100px;
+  left: 340px;
+  width: 300px;
+  padding: 15px;
+  border-radius: 15px;
+  z-index: 998;
+}
+
+body.light .stepper-box {
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+body.dark .stepper-box {
+  background-color: #1e1e1e;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+}
+
+.stepper-step {
+  display: flex;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.stepper-step:last-child {
+  margin-bottom: 0;
+}
+
+.stepper-line {
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  bottom: -32px;
+  width: 2px;
+  background-color: #e2e8f0;
+  z-index: 1;
+}
+
+body.dark .stepper-line {
+  background-color: #444;
+}
+
+.stepper-step:last-child .stepper-line {
+  display: none;
+}
+
+.stepper-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  z-index: 2;
+}
+
+body.light .stepper-completed .stepper-circle {
+  background-color: #0f172a;
+  color: white;
+}
+
+body.dark .stepper-completed .stepper-circle {
+  background-color: #22c55e;
+  color: white;
+}
+
+body.light .stepper-active .stepper-circle {
+  border: 2px solid #0f172a;
+  color: #0f172a;
+}
+
+body.dark .stepper-active .stepper-circle {
+  border: 2px solid #22c55e;
+  color: #22c55e;
+}
+
+body.light .stepper-pending .stepper-circle {
+  border: 2px solid #e2e8f0;
+  color: #94a3b8;
+}
+
+body.dark .stepper-pending .stepper-circle {
+  border: 2px solid #64748b;
+  color: #64748b;
+}
+
+.stepper-content {
+  flex: 1;
+}
+
+.stepper-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+body.light .stepper-completed .stepper-title {
+  color: #0f172a;
+}
+
+body.dark .stepper-completed .stepper-title {
+  color: #22c55e;
+}
+
+body.light .stepper-active .stepper-title {
+  color: #0f172a;
+}
+
+body.dark .stepper-active .stepper-title {
+  color: #22c55e;
+}
+
+body.light .stepper-pending .stepper-title {
+  color: #94a3b8;
+}
+
+body.dark .stepper-pending .stepper-title {
+  color: #64748b;
+}
+
+.stepper-status {
+  font-size: 13px;
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-top: 4px;
+}
+
+body.light .stepper-completed .stepper-status {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+body.dark .stepper-completed .stepper-status {
+  background-color: #166534;
+  color: #dcfce7;
+}
+
+body.light .stepper-active .stepper-status {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+body.dark .stepper-active .stepper-status {
+  background-color: #1d4ed8;
+  color: #dbeafe;
+}
+
+body.light .stepper-pending .stepper-status {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+body.dark .stepper-pending .stepper-status {
+  background-color: #64748b;
+  color: #f1f5f9;
+}
+
+.stepper-time {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+body.dark .stepper-time {
+  color: #B8B8B8;
+}
+
+.stepper-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.stepper-btn {
+  height: 38px;
+  padding: 0 15px;
+  background: linear-gradient(90deg, #4480FF, #1e3a8a);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stepper-btn:hover {
+  background: linear-gradient(90deg, #1e3a8a, #4480FF);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Стили для кнопки Заказы */
+.orders-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  background: linear-gradient(90deg, #4480FF, #1e3a8a);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 998;
+}
+
+.orders-btn:hover {
+  background: linear-gradient(90deg, #1e3a8a, #4480FF);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.orders-btn .count {
+  margin-left: 8px;
+  background-color: #ffffff;
+  color: #4480FF;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+body.dark .orders-btn .count {
+  background-color: #2a2a2a;
+  color: #4480FF;
+}
+
+/* Стили для кнопки Рефералы */
+.referrals-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  background: linear-gradient(90deg, #4480FF, #1e3a8a);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 998;
+}
+
+.referrals-btn:hover {
+  background: linear-gradient(90deg, #1e3a8a, #4480FF);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .referrals-btn {
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+body.dark .referrals-btn:hover {
+  box-shadow: 0 6px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Стили для карточек услуг */
+.card {
+  width: 300px;
+  height: 350px;
+  background: #ffd166;
+  color: #073b4c;
+  font-weight: 600;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  position: relative;
+  transition: all .5s ease;
+}
+
+body.dark .card {
+  background: #1e1e1e;
+  color: #ffffff;
+}
+
+.card::before {
+  content: attr(data-price);
+  position: absolute;
+  width: 75px;
+  height: 75px;
+  top: 35%;
+  right: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #ef476f;
+  color: aliceblue;
+  font-weight: 800;
+  font-size: 16px;
+  transition: all .5s ease;
+  z-index: 10;
+}
+
+body.dark .card::before {
+  background-color: #d43f5f;
+}
+
+.card__image {
+  width: 100%;
+  height: 150px;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  margin: 0 auto;
+  transition: all .5s ease;
+}
+
+body.dark .card__image {
+  filter: brightness(0.8);
+}
+
+.card__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  gap: 10px;
+}
+
+.card__content .title {
+  font-weight: 800;
+  font-size: 1.4em;
+}
+
+body.light .card__content .title {
+  color: #073b4c;
+}
+
+body.dark .card__content .title {
+  color: #ffffff;
+}
+
+.card__content p {
+  margin: 0;
+  font-size: 14px;
+}
+
+body.light .card__content p {
+  color: #073b4c;
+}
+
+body.dark .card__content p {
+  color: #B8B8B8;
+}
+
+.card__button {
+  height: 38px;
+  padding: 0 15px;
+  background: linear-gradient(90deg, #4480FF, #1e3a8a);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.card__button:hover {
+  background: linear-gradient(90deg, #1e3a8a, #4480FF);
+}
+
+.card:hover {
+  border-top-left-radius: 35px;
+  box-shadow: 5px 5px 0px 0px #06d6a0, 10px 10px 0px 0px #118ab2, 15px 15px 0px 0px #06d6a0, 5px 5px 15px 5px rgba(0,0,0,0);
+}
+
+body.dark .card:hover {
+  box-shadow: 5px 5px 0px 0px #06d6a0, 10px 10px 0px 0px #118ab2, 15px 15px 0px 0px #06d6a0, 5px 5px 15px 5px rgba(255,255,255,0.1);
+}
+
+.card:hover .card__image {
+  border-top-left-radius: 25px;
+}
+
+.card:hover::before {
+  transform: scale(1.3) rotate(-30deg);
+}
+
+/* Стили для модального окна */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.order-form {
+  background-color: white;
+  position: relative;
+  padding: 20px;
+  border-radius: 10px;
+  width: 800px;
+  max-width: 95%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+body.dark .order-form {
+  background-color: #1e1e1e;
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+.order-form-left,
+.order-form-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.order-flex-column {
+  margin-bottom: 10px;
+}
+
+.order-flex-column label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+}
+
+body.dark .order-flex-column label {
+  color: #ffffff;
+}
+
+.order-inputForm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 5px;
+}
+
+body.dark .order-inputForm {
+  border: 1px solid #444;
+}
+
+.order-inputForm svg {
+  flex-shrink: 0;
+  fill: #94a3b8;
+}
+
+body.dark .order-inputForm svg {
+  fill: #B8B8B8;
+}
+
+.order-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 5px;
+}
+
+body.light .order-input {
+  background: transparent;
+  color: #121212;
+}
+
+body.dark .order-input {
+  background: transparent;
+  color: #ffffff;
+}
+
+.order-input::placeholder {
+  color: #94a3b8;
+}
+
+body.dark .order-input::placeholder {
+  color: #B8B8B8;
+}
+
+.order-subtask-container {
+  margin-top: 10px;
+  padding-left: 0px;
+}
+
+.order-subtask {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.order-subtask-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+body.dark .order-subtask-input {
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #ffffff;
+}
+
+.order-subtask-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-subtask-btn.add {
+  background: linear-gradient(90deg, #22c55e, #15803d);
+}
+
+.order-subtask-btn.remove {
+  background: linear-gradient(90deg, #ef4444, #b91c1c);
+}
+
+.order-subtask-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.order-subtask-btn.add:hover {
+  background: linear-gradient(90deg, #15803d, #22c55e);
+}
+
+.order-subtask-btn.remove:hover {
+  background: linear-gradient(90deg, #b91c1c, #ef4444);
+}
+
+.order-subtask-btn svg {
+  width: 24px;
+  height: 24px;
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+
+.order-file-list,
+.order-voice-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.order-file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+body.dark .order-file-item {
+  border: 1px solid #444;
+  background: #2a2a2a;
+}
+
+.order-file-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.order-file-item span {
+  font-size: 14px;
+  flex: 1;
+}
+
+body.light .order-file-item span {
+  color: #121212;
+}
+
+body.dark .order-file-item span {
+  color: #ffffff;
+}
+
+.order-file-remove-btn,
+.order-voice-remove-btn,
+.order-voice-play-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.order-file-remove-btn,
+.order-voice-remove-btn {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.order-file-remove-btn:hover,
+.order-voice-remove-btn:hover {
+  background: #b91c1c;
+}
+
+.order-voice-play-btn {
+  background: #22c55e;
+  color: #ffffff;
+}
+
+.order-voice-play-btn:hover {
+  background: #15803d;
+}
+
+.order-voice-record-btn {
+  height: 38px;
+  padding: 0 15px;
+  background: linear-gradient(90deg, #4480FF, #1e3a8a);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s ease;
+}
+
+.order-voice-record-btn.recording {
+  background: linear-gradient(90deg, #ef4444, #b91c1c);
+}
+
+.order-voice-record-btn:hover {
+  background: linear-gradient(90deg, #1e3a8a, #4480FF);
+}
+
+.order-voice-record-btn.recording:hover {
+  background: linear-gradient(90deg, #b91c1c, #ef4444);
+}
+
+.transaction-container {
+  height: 38px;
+  width: max-content;
+  padding: 0 15px;
+  background: linear-gradient(90deg, #4480FF, #1e3a8a);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.3s ease;
+}
+
+.transaction-container:hover {
+  background: linear-gradient(90deg, #1e3a8a, #4480FF);
+}
+
+.transaction-new {
+  font-size: 14px;
+  text-align: center;
+  line-height: 38px;
+  font-weight: 600;
+}
+
+.transaction-arrow {
+  width: 20px;
+  height: 20px;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.order-form-right .error-message {
+  order: 3;
+}
+
+/* Стили для реферального модального окна */
+.referral-form {
+  background-color: white;
+  position: relative;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 95%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+body.dark .referral-form {
+  background-color: #1e1e1e;
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+.referral-form h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+body.light .referral-form h2 {
+  color: #121212;
+}
+
+body.dark .referral-form h2 {
+  color: #ffffff;
+}
+
+.referral-form p {
+  font-size: 14px;
+  margin: 0;
+}
+
+body.light .referral-form p {
+  color: #707175;
+}
+
+body.dark .referral-form p {
+  color: #B8B8B8;
+}
+
+.referral-form-link-container {
+  display: flex;
+  gap: 10px;
+}
+
+.referral-form-link-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+body.dark .referral-form-link-input {
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #ffffff;
+}
+
+.copy-btn {
+  height: 38px;
+  padding: 0 15px;
+  background: linear-gradient(90deg, #4480FF, #1e3a8a);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.copy-btn:hover {
+  background: linear-gradient(90deg, #1e3a8a, #4480FF);
+}
+
+.battery-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.battery {
+  width: 100%;
+  height: 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+body.dark .battery {
+  border: 2px solid #444;
+}
+
+.battery-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #15803d);
+  transition: width 0.3s ease;
+}
+
+.battery-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+body.light .battery-labels {
+  color: #707175;
+}
+
+body.dark .battery-labels {
+  color: #B8B8B8;
+}
+
+.referral-info {
+  font-size: 14px;
+}
+
+body.light .referral-info {
+  color: #707175;
+}
+
+body.dark .referral-info {
+  color: #B8B8B8;
+}
+
+.referral-info span {
+  font-weight: 600;
+}
+
+body.light .referral-info span {
+  color: #121212;
+}
+
+body.dark .referral-info span {
+  color: #ffffff;
+}
+
+/* Стили для модального окна подтверждения удаления */
+.confirm-delete-modal {
+  position: relative;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 95%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  text-align: center;
+}
+
+body.light .confirm-delete-modal {
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.dark .confirm-delete-modal {
+  background-color: #1e1e1e;
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+.confirm-delete-modal h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+body.light .confirm-delete-modal h2 {
+  color: #121212;
+}
+
+body.dark .confirm-delete-modal h2 {
+  color: #ffffff;
+}
+
+.confirm-delete-modal p {
+  font-size: 14px;
+  margin: 0;
+}
+
+body.light .confirm-delete-modal p {
+  color: #707175;
+}
+
+body.dark .confirm-delete-modal p {
+  color: #B8B8B8;
+}
+
+.confirm-delete-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.confirm-btn,
+.cancel-btn {
+  height: 38px;
+  padding: 0 15px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.confirm-btn {
+  background: linear-gradient(90deg, #ef4444, #b91c1c);
+  color: #ffffff;
+}
+
+.confirm-btn:hover {
+  background: linear-gradient(90deg, #b91c1c, #ef4444);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-btn {
+  background: linear-gradient(90deg, #94a3b8, #64748b);
+  color: #ffffff;
+}
+
+body.dark .cancel-btn {
+  background: linear-gradient(90deg, #64748b, #475569);
+}
+
+.cancel-btn:hover {
+  background: linear-gradient(90deg, #64748b, #94a3b8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+body.dark .cancel-btn:hover {
+  background: linear-gradient(90deg, #475569, #64748b);
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+.confirm-delete-modal .error-message {
+  color: #ef4444;
+  font-size: 14px;
+  margin-top: 10px;
+}
+/* Стили для элементов голосовых сообщений */
+.order-file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+body.dark .order-file-item {
+  border: 1px solid #444;
+  background: #2a2a2a;
+}
+
+.file-size,
+.voice-duration {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+body.light .file-size,
+body.light .voice-duration {
+  color: #707175;
+}
+
+body.dark .file-size,
+body.dark .voice-duration {
+  color: #B8B8B8;
+}
+
+.voice-progress {
+  flex: 1;
+  margin: 0 15px;
+}
+
+.voice-progress input[type="range"] {
+  width: 100%;
+  height: 8px; /* Увеличена высота для большей заметности */
+  cursor: pointer;
+  border-radius: 4px;
+  background: #e0e0e0;
+  outline: none;
+  -webkit-appearance: none;
+  transition: background 0.3s ease;
+}
+
+body.dark .voice-progress input[type="range"] {
+  background: #444;
+}
+
+.voice-progress input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; /* Увеличен размер ползунка */
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #4480FF, #1e3a8a);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+body.dark .voice-progress input[type="range"]::-webkit-slider-thumb {
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1);
+}
+
+.voice-progress input[type="range"]::-moz-range-thumb {
+  width: 20px; /* Увеличен размер ползунка */
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #4480FF, #1e3a8a);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+body.dark .voice-progress input[type="range"]::-moz-range-thumb {
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1);
+}
+
+.order-voice-play-btn,
+.order-voice-remove-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-voice-play-btn {
+  background: linear-gradient(90deg, #22c55e, #15803d);
+}
+
+.order-voice-play-btn:hover {
+  background: linear-gradient(90deg, #15803d, #22c55e);
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+body.dark .order-voice-play-btn:hover {
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+.order-voice-remove-btn {
+  background: linear-gradient(90deg, #ef4444, #b91c1c);
+}
+
+.order-voice-remove-btn:hover {
+  background: linear-gradient(90deg, #b91c1c, #ef4444);
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+body.dark .order-voice-remove-btn:hover {
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+}

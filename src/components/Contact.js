@@ -26,7 +26,7 @@ export const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setButtonText("Отправка...");
-    let response = await fetch("http://localhost:5000/contact", {
+    let response = await fetch("https://market.apt142.ru/contact", {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=utf-8",
@@ -62,9 +62,9 @@ export const Contact = () => {
             <TrackVisibility>
               {({ isVisible }) => (
                 <div className={isVisible ? "animate__animated animate__fadeIn" : ""}>
-                  <h2>Связаться со мной</h2>
+                  <h2>Связаться с нами</h2>
                   <p>
-                    Если у вас есть вопросы по моим проектам, предложения по сотрудничеству или
+                    Если у вас есть вопросы по проектам, предложения по сотрудничеству или
                     интерес к учебным инициативам, заполните форму ниже!
                   </p>
                   <form onSubmit={handleSubmit}>
