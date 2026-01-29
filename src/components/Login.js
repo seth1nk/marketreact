@@ -101,7 +101,7 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await fetch('https://market.apt142.ru/auth/google', {
+        const res = await fetch('https://marketreact-ip88.onrender.com/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: tokenResponse.access_token, referral_code: referralCode || undefined }),
@@ -123,7 +123,7 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
       setError('Ошибка авторизации через Google');
     },
     scope: 'email profile',
-    redirect_uri: 'https://market.apt142.ru',
+    redirect_uri: 'https://marketreact-ip88.onrender.com',
   });
 
   const handleSwitchToRegister = () => {
