@@ -23,7 +23,7 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
         onLoginSuccess(storedUser);
       }
     } else if (googleToken) {
-      fetch('https://market.apt142.ru/auth/google', {
+      fetch('https://marketreact-ip88.onrender.com/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ access_token: googleToken }),
@@ -56,7 +56,7 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
       return;
     }
     try {
-      const response = await axios.post('https://market.apt142.ru/login', { email, password });
+      const response = await axios.post('https://marketreact-ip88.onrender.com/login', { email, password });
       localStorage.setItem('token', response.data.token);
       const userInfo = response.data.user;
       onLoginSuccess(userInfo);
@@ -77,7 +77,7 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
       return;
     }
     try {
-      const response = await axios.post('https://market.apt142.ru/register', {
+      const response = await axios.post('https://marketreact-ip88.onrender.com/register', {
         email,
         password,
         name,
