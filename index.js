@@ -21,9 +21,9 @@ const PORT = process.env.PORT || 5000;
 
 const DB_CONFIG = {
   user: 'market',           // Ваш пользователь
-  host: 'apt142.ru',        // Ваш хост
+  host: '127.0.0.1',        // Ваш хост
   database: 'market_db',    // Ваша база данных
-  password: 'c8B7a2b3CA',   // Ваш пароль
+  password: '8C293b1ac7',   // Ваш пароль
   port: 5432,               // Стандартный порт PostgreSQL
   // ssl: { rejectUnauthorized: false } // <-- РАСКОММЕНТИРУЙТЕ ЭТУ СТРОКУ, если будет ошибка "SSL off"
 };
