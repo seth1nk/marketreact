@@ -13,7 +13,7 @@ const SupportChat = ({ isOpen, onClose, user, isAuthenticated }) => {
   const isAdmin = user?.name === 'seth1nk';
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
+useEffect(() => {
     if (isOpen && isAuthenticated) {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -21,16 +21,21 @@ const SupportChat = ({ isOpen, onClose, user, isAuthenticated }) => {
         return;
       }
 
+      // Первая загрузка
       fetchUsers();
       fetchMessages();
 
+      // Автообновление каждые 3 секунды
       const interval = setInterval(() => {
-        fetchMessages();
-      }, 5000); // Ускорил обновление до 5 сек для удобства
+        fetchMessages(); // Обновляем сообщения
+        if (isAdmin) {
+             fetchUsers(); // ВАЖНО: Обновляем список пользователей!
+        }
+      }, 3000); 
 
       return () => clearInterval(interval);
     }
-  }, [isOpen, isAuthenticated, selectedUser]);
+  }, [isOpen, isAuthenticated, selectedUser]); // theme или другие зависимости, если нужно
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
