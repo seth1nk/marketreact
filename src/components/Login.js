@@ -56,7 +56,7 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
       return;
     }
     try {
-      const response = await axios.post('https://marketreact-ip88.onrender.com/login', { email, password });
+      const response = await axios.post('https://market.apt142.ru/login', { email, password });
       localStorage.setItem('token', response.data.token);
       const userInfo = response.data.user;
       onLoginSuccess(userInfo);
@@ -77,7 +77,7 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
       return;
     }
     try {
-      const response = await axios.post('https://marketreact-ip88.onrender.com/register', {
+      const response = await axios.post('https://market.apt142.ru/register', {
         email,
         password,
         name,
@@ -101,7 +101,7 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await fetch('https://marketreact-ip88.onrender.com/auth/google', {
+        const res = await fetch('https://market.apt142.ru/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: tokenResponse.access_token, referral_code: referralCode || undefined }),
@@ -123,7 +123,7 @@ const Login = ({ showLogin, showRegister, onLoginClose, onRegisterClose, onLogin
       setError('Ошибка авторизации через Google');
     },
     scope: 'email profile',
-    redirect_uri: 'https://marketreact-ip88.onrender.com',
+    redirect_uri: 'https://market.apt142.ru',
   });
 
   const handleSwitchToRegister = () => {
