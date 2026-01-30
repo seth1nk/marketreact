@@ -36,7 +36,7 @@ const BOT_TOKEN = "8327873454:AAEbB6_rS3hiVc2wCWsiL_LUXZMRC-sPJnY"; // Твой 
 // ==========================================
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://market.apt142.ru', 'http://market.apt142.ru', 'https://marketreact-ip88.onrender.com/'],
+  origin: ['http://localhost:3000', 'https://market.apt142.ru', 'http://market.apt142.ru'],
   credentials: true
 }));
 
