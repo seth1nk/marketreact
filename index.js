@@ -12,8 +12,24 @@ const fs = require('fs');
 // УБРАНО: require('dotenv').config();
 
 const app = express();
-// Если хостинг сам назначает порт, он будет в process.env.PORT, иначе 5000
-const PORT = process.env.PORT || 5000; 
+
+// --- ИСПРАВЛЕНИЕ: ПАРСИНГ ПОРТА ИЗ АРГУМЕНТОВ ---
+let cliPort = null;
+const args = process.argv.slice(2);
+
+// 1. Проверяем флаг --port (как делает ваша панель autostart.php)
+const portFlagIndex = args.indexOf('--port');
+if (portFlagIndex !== -1 && args[portFlagIndex + 1]) {
+    cliPort = args[portFlagIndex + 1];
+} 
+// 2. Проверяем, если передано просто число (node index.js 3013)
+else if (args[0] && !isNaN(args[0])) {
+    cliPort = args[0];
+}
+
+// Итоговый приоритет: Аргумент командной строки -> ENV -> 5000
+const PORT = cliPort || process.env.PORT || 5000;
+// ------------------------------------------------
 
 // ==========================================
 // 1. НАСТРОЙКА КОНФИГУРАЦИИ (ХАРДКОД)
