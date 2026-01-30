@@ -8,7 +8,7 @@ const multer = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
-
+const ADMIN_TG_ID = "1163547353"; // Твой ID администратора
 // УБРАНО: require('dotenv').config();
 
 const app = express();
@@ -303,43 +303,84 @@ app.get('/messages', authenticateToken, async (req, res) => {
 });
 
 app.post('/messages', authenticateToken, async (req, res) => {
-  try {
-    const { recipientId, content, isComplaint } = req.body;
-    if (!content || !recipientId) return res.status(400).json({ error: 'Нет данных' });
-
-    const client = await pool.connect();
     try {
-      const sender = await client.query('SELECT name FROM users WHERE id = $1', [req.user.id]);
-      if (sender.rows.length === 0) return res.status(404).json({ error: 'Отправитель не найден' });
-      
-      const recipient = await client.query('SELECT id FROM users WHERE id = $1', [recipientId]);
-      if (recipient.rows.length === 0) return res.status(404).json({ error: 'Получатель не найден' });
+        const { recipientId, content, isComplaint } = req.body;
+        if (!content || !recipientId) return res.status(400).json({ error: 'Нет данных' });
 
-      const result = await client.query(
-        'INSERT INTO messages (sender_id, recipient_id, content, timestamp, sender_name, status, isComplaint) VALUES ($1, $2, $3, CURRENT_TIMESTAMP, $4, $5, $6) RETURNING *',
-        [req.user.id, recipientId, content, sender.rows[0].name, 'delivered', isComplaint || false]
-      );
-      res.json(result.rows[0]);
+        const client = await pool.connect();
+        try {
+            // 1. Получаем данные отправителя (кто пишет?)
+            const senderRes = await client.query('SELECT id, name, CAST(telegram_id AS VARCHAR) as telegram_id FROM users WHERE id = $1', [req.user.id]);
+            const sender = senderRes.rows[0];
+
+            // 2. Получаем данные получателя (кому пишут?)
+            const recipientRes = await client.query('SELECT id, name, CAST(telegram_id AS VARCHAR) as telegram_id FROM users WHERE id = $1', [recipientId]);
+            if (recipientRes.rows.length === 0) return res.status(404).json({ error: 'Получатель не найден' });
+            const recipient = recipientRes.rows[0];
+
+            // 3. Сохраняем сообщение в базу данных сайта
+            const result = await client.query(
+                'INSERT INTO messages (sender_id, recipient_id, content, timestamp, sender_name, status, isComplaint) VALUES ($1, $2, $3, CURRENT_TIMESTAMP, $4, $5, $6) RETURNING *',
+                [req.user.id, recipientId, content, sender.name, 'delivered', isComplaint || false]
+            );
+
+            // =========================================================
+            // ЛОГИКА ОТПРАВКИ В TELEGRAM
+            // =========================================================
+
+            // СЦЕНАРИЙ А: АДМИН ПИШЕТ ПОЛЬЗОВАТЕЛЮ
+            // (Проверяем: если отправитель seth1nk ИЛИ если получатель НЕ админ/не ID 1)
+            if (sender.name === 'seth1nk') { 
+                const targetTgId = recipient.telegram_id;
+                
+                if (targetTgId) {
+                    try {
+                        await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            chat_id: targetTgId,
+                            text: `📩 <b>Ответ поддержки:</b>\n\n${content}`,
+                            parse_mode: 'HTML',
+                            reply_markup: {
+                                inline_keyboard: [[
+                                    { text: "✍️ Ответить поддержке", callback_data: "user_reply_support" }
+                                ]]
+                            }
+                        });
+                        console.log(`✅ [Site->TG] Админ ответил пользователю ${recipient.name}`);
+                    } catch (e) { console.error('Ошибка отправки юзеру:', e.message); }
+                }
+            } 
+            
+            // СЦЕНАРИЙ Б: ПОЛЬЗОВАТЕЛЬ ПИШЕТ АДМИНУ (В ПОДДЕРЖКУ)
+            else {
+                // Если пишут админу (обычно ID 1 или имя seth1nk), то шлем уведомление на ADMIN_TG_ID
+                // Даже если получатель не seth1nk, но это сообщение с сайта, лучше уведомить админа, если это чат поддержки.
+                
+                try {
+                    await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        chat_id: ADMIN_TG_ID,
+                        text: `📩 <b>Сообщение с сайта:</b>\nОт: ${sender.name} (ID: ${sender.id})\n\n${content}`,
+                        parse_mode: 'HTML',
+                        reply_markup: {
+                            inline_keyboard: [[
+                                // Важно: ID отправителя (sender.id), чтобы админ мог нажать и ответить ему
+                                { text: "↩️ Ответить пользователю", callback_data: `reply_to_${sender.id}` }
+                            ]]
+                        }
+                    });
+                    console.log(`✅ [Site->TG] Пользователь ${sender.name} написал админу`);
+                } catch (e) { console.error('Ошибка отправки админу:', e.message); }
+            }
+            // =========================================================
+
+            res.json(result.rows[0]);
+        } finally {
+            client.release();
+        }
+
     } catch (error) {
-      await client.query('UPDATE messages SET status = $1 WHERE sender_id = $2 AND content = $3 AND isComplaint = $4', ['error', req.user.id, content, isComplaint || false]);
-      throw error;
-    } finally {
-      client.release();
+        console.error("Server error:", error);
+        res.status(500).json({ error: error.message });
     }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.get('/download/:filename', authenticateToken, (req, res) => {
-  const filename = req.params.filename;
-  const filePath = path.join(__dirname, 'Uploads', filename);
-
-  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Файл не найден' });
-
-  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
-  res.setHeader('Content-Type', 'application/octet-stream');
-  res.sendFile(filePath);
 });
 
 app.get('/referrals', authenticateToken, async (req, res) => {
@@ -858,13 +899,84 @@ app.get('/api/internal/orders/:id', async (req, res) => {
 
 app.post('/api/internal/orders/link-telegram', async (req, res) => {
   try {
-    const { orderId, telegramId } = req.body;
+    // Приводим к строке, чтобы точно записалось в BIGINT
+    const orderId = String(req.body.orderId);
+    const telegramId = String(req.body.telegramId);
+
+    console.log(`🔗 Попытка привязки: OrderID=${orderId}, TelegramID=${telegramId}`);
+
+    // 1. Ищем заказ
     const orderResult = await pool.query('SELECT * FROM orders WHERE id = $1', [orderId]);
-    if (orderResult.rows.length === 0) return res.status(404).json({ error: 'Заказ не найден' });
+    
+    if (orderResult.rows.length === 0) {
+      console.log('❌ Заказ не найден в БД');
+      return res.status(404).json({ error: 'Заказ не найден' });
+    }
+
     const order = orderResult.rows[0];
+    console.log(`✅ Заказ найден. UserID владельца: ${order.user_id}`);
+
+    // 2. Обновляем пользователя
+    // Используем telegramId именно как строку! Postgres сам поймет.
     await pool.query('UPDATE users SET telegram_id = $1 WHERE id = $2', [telegramId, order.user_id]);
+
+    console.log(`🎉 УСПЕХ! Пользователю ${order.user_id} присвоен TG ID ${telegramId}`);
+    
     res.json(order);
+
   } catch (error) {
+    console.error('❌ Ошибка привязки:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+// --- ИСПРАВЛЕННЫЙ: Сохранение сообщений от ТГ-бота (и от юзера, и от админа) ---
+app.post('/api/internal/messages/from-telegram', async (req, res) => {
+  try {
+    const telegramId = String(req.body.telegramId); // Кто пишет (ТГ ID)
+    const { content, recipientId } = req.body;      // Текст и (опционально) получатель
+
+    console.log(`📩 Бот прислал сообщение. От TG: ${telegramId}. Текст: ${content}`);
+
+    const client = await pool.connect();
+    try {
+        // 1. Ищем, кто отправитель в нашей базе по Telegram ID
+        const senderRes = await client.query('SELECT id, name FROM users WHERE telegram_id = $1', [telegramId]);
+        
+        if (senderRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Sender not found in DB' });
+        }
+
+        const senderId = senderRes.rows[0].id;
+        const senderName = senderRes.rows[0].name;
+        
+        // 2. Определяем получателя
+        // Если пишет Админ (seth1nk или ID 1), то получатель должен быть передан в body (recipientId)
+        // Если пишет Юзер, то получатель всегда Админ (ID 1)
+        
+        let finalRecipientId = 1; // По умолчанию Админ
+        
+        if (senderName === 'seth1nk' || senderId === 1) {
+            // Если пишет админ, берем ID получателя из запроса
+            if (!recipientId) return res.status(400).json({ error: 'Admin must provide recipientId' });
+            finalRecipientId = recipientId;
+        }
+
+        console.log(`💾 Сохраняем в БД: ${senderName} (ID ${senderId}) -> User ID ${finalRecipientId}`);
+
+        // 3. Сохраняем
+        const result = await client.query(
+            'INSERT INTO messages (sender_id, recipient_id, content, timestamp, sender_name, status) VALUES ($1, $2, $3, CURRENT_TIMESTAMP, $4, $5) RETURNING *',
+            [senderId, finalRecipientId, content, senderName, 'delivered']
+        );
+
+        res.json(result.rows[0]);
+
+    } finally {
+        client.release();
+    }
+
+  } catch (error) {
+    console.error('❌ Ошибка сохранения сообщения из бота:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -897,7 +1009,25 @@ app.post('/api/internal/orders/:id/confirm', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// --- НОВОЕ: Получить Telegram ID по внутреннему ID пользователя ---
+app.get('/api/internal/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Ищем пользователя и возвращаем его telegram_id
+    const result = await pool.query('SELECT telegram_id, name FROM users WHERE id = $1', [id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const user = result.rows[0];
+    // Возвращаем tg_id как строку, чтобы не потерять точность
+    res.json({ telegram_id: user.telegram_id ? String(user.telegram_id) : null, name: user.name });
 
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 app.get('/products', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
