@@ -39,7 +39,7 @@ const DB_CONFIG = {
   user: 'market',           // Ваш пользователь
   host: '127.0.0.1',        // Ваш хост
   database: 'market_db',    // Ваша база данных
-  password: '8C293b1ac7',   // Ваш пароль
+  password: '3bCa7A289c',   // Ваш пароль
   port: 5432,               // Стандартный порт PostgreSQL
   // ssl: { rejectUnauthorized: false } // <-- РАСКОММЕНТИРУЙТЕ ЭТУ СТРОКУ, если будет ошибка "SSL off"
 };
